@@ -25,6 +25,25 @@ then
 fi
 
 
+if [[ ! -e /var/www/html/inventory.html ]]
+then
+	echo "===> creating html file"
+	touch /var/www/html/inventory.html
+	echo "<pre>Log_Type    Time_Created     Type  Size<pre>" > /var/www/html/inventory.html
+
+fi
+
+if [[ ! -e /etc/cron.d/automation ]]
+then
+        echo "===> creating cron file"
+        touch /etc/cron.d/automation 
+        echo "0 0 * * * root /bin/bash /root/Automation_Project/automation.sh" > /etc/cron.d/automation
+	crontab /etc/cron.d/automation
+
+fi
+
+
+
 
 sudo apt install awscli -y
 
@@ -34,5 +53,7 @@ tar cvf  /tmp/$myname-httpd-logs-$timestamp.tar *.log
 
 aws s3 cp /tmp/${myname}-httpd-logs-${timestamp}.tar \
 s3://${s3_bucket}/${myname}-httpd-logs-${timestamp}.tar
+
+echo "<pre>httpd-logs  $timestamp  tar   $(ls -ltrh /tmp/${myname}-httpd-logs-${timestamp}.tar | awk '{print $5}')<pre>" >> /var/www/html/inventory.html
 
 cd
